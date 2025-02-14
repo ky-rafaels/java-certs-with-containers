@@ -13,7 +13,7 @@ cd kind-cluster
 ./cilium-kind-deploy.sh 1 cluster1 us-east-1 us-east-1a
 ```
 
-Clone this repo and deploy some tools that we can use for our example
+Clone this repo 
 
 ```bash
 git clone git@github.com:ky-rafaels/certs-with-containers.git
