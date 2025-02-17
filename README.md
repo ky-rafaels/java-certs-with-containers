@@ -82,4 +82,8 @@ trust-manager-tls                     kubernetes.io/tls    3      4d5h
 
 Next let's build our Java sample app and mount our secrets in a Java Keystore
 
+```bash
+docker build -t java-app:v1.0 .
+
+
 ### Trust bundles
