@@ -46,6 +46,12 @@ helm upgrade trust-manager jetstack/trust-manager \
   --wait
 ```
 
+Create password secret to be used for Java keystore
+
+```bash
+kubectl create secret generic keystore-pass --from-literal=password=HellYes123 -n default
+```
+
 ## Examples
 
 ### Trust bundles
