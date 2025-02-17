@@ -54,6 +54,32 @@ kubectl create secret generic keystore-pass --from-literal=password=HellYes123 -
 
 ## Examples
 
-### Trust bundles
-
 ### JKS Certificates
+```bash
+# Apply the self-signed ca certificate 
+kubectl apply -f k8s/cert-manager/cluster-issuer.yaml
+# Then apply the wildcard certificate
+kubectl apply -f k8s/cert-manager/wildcard.yaml
+```
+
+You should now have CA cert bundle along with wildcard certificate secrets
+```bash
+❯ kubectl get secret -n default
+NAME            TYPE                DATA   AGE
+keystore-pass   Opaque              1      7m4s
+wildcard-tls    kubernetes.io/tls   5      6m38s
+
+....
+
+❯ kubectl get secret -n cert-manager
+NAME                                  TYPE                 DATA   AGE
+cert-manager-webhook-ca               Opaque               3      4d5h
+root-secret                           kubernetes.io/tls    3      22m
+sh.helm.release.v1.cert-manager.v1    helm.sh/release.v1   1      4d5h
+sh.helm.release.v1.trust-manager.v1   helm.sh/release.v1   1      4d5h
+trust-manager-tls                     kubernetes.io/tls    3      4d5h
+```
+
+Next let's build our Java sample app and mount our secrets in a Java Keystore
+
+### Trust bundles
