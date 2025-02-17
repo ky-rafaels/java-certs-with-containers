@@ -13,11 +13,11 @@ cd kind-cluster
 ./cilium-kind-deploy.sh 1 cluster1 us-east-1 us-east-1a
 ```
 
-Install Argo
+<!-- Install Argo
 ```bash
 kubectl create namespace argocd
 kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
-```
+``` -->
 
 Clone this repo 
 
@@ -26,15 +26,24 @@ git clone git@github.com:ky-rafaels/certs-with-containers.git
 cd certs-with-containers
 ```
 
-*To retrieve ArgoCD Admin user password*
+<!-- *To retrieve ArgoCD Admin user password*
 ```bash
 kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
-```
+``` -->
 
 ### Cert Manager and Trust Manager Setup
 
 ```bash
-kubectl apply -f ./argo
+helm install cert-manager jetstack/cert-manager \
+  --namespace cert-manager \
+  --create-namespace \
+  --version v1.17.0 \
+  --set crds.enabled=true
+
+helm upgrade trust-manager jetstack/trust-manager \
+  --install \
+  --namespace cert-manager \
+  --wait
 ```
 
 ## Examples
