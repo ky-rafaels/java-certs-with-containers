@@ -5,10 +5,20 @@ metadata:
   namespace: cert-manager
 spec:
   sources:
+  # Include a bundle of publicly trusted certificates which can be
+  # used to validate most TLS certificates on the internet
   - useDefaultCAs: true
-  - configMap:
-      name: cgr-ca
+  - secret:
+      name: root-secret
       key: ca.crt
   target:
     configMap:
       key: "bundle.pem"
+    additionalFormats:
+      jks:
+        key: "bundle.jks"
+      pkcs12:
+        key: "bundle.p12"
+    namespaceSelector:
+      matchLabels:
+        create-certs: "true"
