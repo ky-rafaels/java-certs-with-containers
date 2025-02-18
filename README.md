@@ -201,13 +201,14 @@ spec:
       - image: localhost:5000/java-app:v1.0
         name: java-app
         args:
-        - "-Djavax.net.ssl.keyStorePassword=$(KEYSTORE_PASS)"
-        - "-Djavax.net.ssl.trustStorePassword=$(KEYSTORE_PASS)"
+        - "-Djavax.net.ssl.keyStorePassword=\$(KEYSTORE_PASS)"
+        - "-Djavax.net.ssl.trustStorePassword=\$(KEYSTORE_PASS)"
         - "-Djavax.net.ssl.keyStore=/var/run/secrets/keystores/keystore.p12"
         - "-Djavax.net.ssl.keyStore=/var/run/secrets/keystores/truststore.p12"
         resources: {}
         volumeMounts:
         - mountPath: /var/run/secrets/keystores
+          name: certs
         env:
         - name: KEYSTORE_PASS
           valueFrom:
@@ -223,5 +224,5 @@ spec:
           secretName: wildcard-tls
 EOF
 
-kubectl apply -f deployment.yaml
+kubectl apply -f deployment.yaml -n default
 ```

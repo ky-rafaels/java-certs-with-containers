@@ -1,0 +1,43 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: java-app
+  name: java-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: java-app
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: java-app
+    spec:
+      containers:
+      - image: localhost:5000/java-app:v1.0
+        name: java-app
+        args:
+        - "-Djavax.net.ssl.keyStorePassword=$(KEYSTORE_PASS)"
+        - "-Djavax.net.ssl.trustStorePassword=$(KEYSTORE_PASS)"
+        - "-Djavax.net.ssl.keyStore=/var/run/secrets/keystores/keystore.p12"
+        - "-Djavax.net.ssl.keyStore=/var/run/secrets/keystores/truststore.p12"
+        resources: {}
+        volumeMounts:
+        - mountPath: /var/run/secrets/keystores
+          name: certs
+        env:
+        - name: KEYSTORE_PASS
+          valueFrom:
+            secretKeyRef:
+              key: password
+              name: keystore-pass
+      volumes:
+      - name: keystore-password
+        secret:
+          secretName: keystore-pass
+      - name: certs
+        secret:
+          secretName: wildcard-tls
