@@ -171,6 +171,57 @@ kubectl get cm chainguard.dev -n default -o yaml
 Next let's build our Java sample app and mount our secrets in a Java Keystore
 
 ```bash
-docker build -t java-app:v1.0 .
+docker build -t localhost:5000/java-app:v1.0 .
+# Push to our local registry
+docker push localhost:5000/java-app:v1.0
+```
 
+Create a deployment manifest for our appp
+```bash
+cat << EOF > deployment.yaml
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: java-app
+  name: java-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: java-app
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: java-app
+    spec:
+      containers:
+      - image: localhost:5000/java-app:v1.0
+        name: java-app
+        args:
+        - "-Djavax.net.ssl.keyStorePassword=$(KEYSTORE_PASS)"
+        - "-Djavax.net.ssl.trustStorePassword=$(KEYSTORE_PASS)"
+        - "-Djavax.net.ssl.keyStore=/var/run/secrets/keystores/keystore.p12"
+        - "-Djavax.net.ssl.keyStore=/var/run/secrets/keystores/truststore.p12"
+        resources: {}
+        volumeMounts:
+        - mountPath: /var/run/secrets/keystores
+        env:
+        - name: KEYSTORE_PASS
+          valueFrom:
+            secretKeyRef:
+              key: password
+              name: keystore-pass
+      volumes:
+      - name: keystore-password
+        secret:
+          secretName: keystore-pass
+      - name: certs
+        secret:
+          secretName: wildcard-tls
+EOF
+
+kubectl apply -f deployment.yaml
 ```
