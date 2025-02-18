@@ -80,11 +80,24 @@ sh.helm.release.v1.trust-manager.v1   helm.sh/release.v1   1      4d5h
 trust-manager-tls                     kubernetes.io/tls    3      4d5h
 ```
 
+Viewing our wildcard-tls secret in the default namespace, we can now see we have a keystore.p12, truststore.p12 and ca.crt value in our secret. These can then be mounted to our Java workload.
+
+```bash
+k get secret wildcard-tls -o yaml |grep -e keystore -e truststore -e ca.crt
+    ca.crt: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURNakNDQWhxZ0F3....
+    keystore.p12: MIIM4wIBAzCCDK8GCSqGSIb3DQEHAaCCDKAEggycMIIMmDCCB08GCSqGSIb3DQEHBqCCB....
+    truststore.p12: MIIEVgIBAzCCBCIGCSqGSIb3DQEHAaCCBBMEggQPMIIECzCCBAcGCSqGSIb....
+```
+
+### Generate a Trust bundle
+
+
+
+## Example adding to Java App
+
 Next let's build our Java sample app and mount our secrets in a Java Keystore
 
 ```bash
 docker build -t java-app:v1.0 .
 
 ```
-
-### Trust bundles
