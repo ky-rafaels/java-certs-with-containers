@@ -38,11 +38,16 @@ helm install cert-manager jetstack/cert-manager \
   --namespace cert-manager \
   --create-namespace \
   --version v1.17.0 \
-  --set crds.enabled=true
+  --set crds.enabled=true \
+  --set image.repository=cgr.dev/ky-rafaels.example.com/cert-manager-controller \
+  --set webhook.image.repository=cgr.dev/ky-rafaels.example.com/cert-manager-webhook \
+  --set cainjector.enabled=true \
+  --set cainjector.image.repository=cgr.dev/ky-rafaels.example.com/cert-manager-cainjector
 
 helm upgrade trust-manager jetstack/trust-manager \
   --install \
   --namespace cert-manager \
+  --set image.repository=cgr.dev/ky-rafaels.example.com/trust-manager:0.16.0 \
   --wait
 ```
 
