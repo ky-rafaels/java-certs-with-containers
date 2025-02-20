@@ -62,9 +62,85 @@ kubectl create secret generic keystore-pass --from-literal=password=HellYes123 -
 ### JKS Certificates
 ```bash
 # Apply the self-signed ca certificate 
-kubectl apply -f k8s/cert-manager/cluster-issuer.yaml
+cat << EOF > cluster-issuer.yaml
+---
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: selfsigned-issuer
+  namespace: cert-manager
+spec:
+  selfSigned: {}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: selfsigned-ca
+  namespace: cert-manager
+spec:
+  isCA: true
+  commonName: 'example'
+  subject:
+    organizations:
+      - chainguard
+  secretName: root-secret
+  privateKey:
+    algorithm: RSA
+    encoding: PKCS1
+    size: 2048
+  dnsNames:
+    - '*.ky-rafaels.com'
+  issuerRef:
+    name: selfsigned-issuer
+    kind: ClusterIssuer
+    group: cert-manager.io
+---
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: ca-issuer
+  namespace: cert-manager
+spec:
+  ca:
+    secretName: root-secret
+EOF
+
 # Then apply the wildcard certificate
-kubectl apply -f k8s/cert-manager/wildcard.yaml
+cat << EOF > wildcard.yaml
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: wildcard
+  namespace: default
+spec:
+  secretName: wildcard-tls
+  duration: 2160h # 90d
+  renewBefore: 360h # 15d
+  commonName: 'wildcard'
+  subject:
+    organizations:
+      - chainguard
+  isCA: false
+  usages:
+    - server auth
+    - client auth
+  dnsNames:
+    - '*.ky-rafaels.com'
+  issuerRef:
+    name: ca-issuer
+    kind: ClusterIssuer
+    group: cert-manager.io
+  keystores: # Create java keystore 
+    pkcs12:
+      create: true
+      passwordSecretRef:
+        name: keystore-pass
+        key: password
+EOF
+
+kubectl apply -f cluster-issuer.yaml
+kubectl apply -f wildcard.yaml
 ```
 
 You should now have CA cert bundle along with wildcard certificate secrets
