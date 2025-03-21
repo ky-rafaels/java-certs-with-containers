@@ -47,7 +47,8 @@ helm install cert-manager jetstack/cert-manager \
 helm upgrade trust-manager jetstack/trust-manager \
   --install \
   --namespace cert-manager \
-  --set image.repository=cgr.dev/ky-rafaels.example.com/trust-manager:0.16.0 \
+  --set image.repository=cgr.dev/ky-rafaels.example.com/trust-manager \
+  --set image.tag=0.16 \
   --wait
 ```
 
